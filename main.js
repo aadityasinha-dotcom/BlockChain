@@ -6,10 +6,10 @@ class Block{
         this.timestamp = timestamp;
         this.data = data;
         this.previousHash = previousHash;
-        this.hash = this.claculateHash();
+        this.hash = this.calculateHash();
     }
 
-    claculateHash(){
+    calculateHash(){
         return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.data)).toString();
     }
 }
@@ -28,9 +28,26 @@ class BlockChain{
     }
 
     addBlock(newBlock){
-        newBlock.previous = this.getLatestBlock().hash;
-        newBlock.hash = newBlock.claculateHash();
+        newBlock.previousHash = this.getLatestBlock().hash;
+        newBlock.hash = newBlock.calculateHash();
         this.chain.push(newBlock);
+    }
+
+    isChainValid(){
+        for(let i = 1; i < this.chain.length; i++){
+            const currBlock = this.chain[i];
+            const prev = this.chain[i-1];
+
+            if(currBlock.hash != currBlock.calculateHash()){
+                return false;
+            }
+    
+            if(currBlock.previousHash != prev.hash){
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 
@@ -38,4 +55,6 @@ let adiCoin = new BlockChain();
 adiCoin.addBlock(new Block(1, "07/02/2022", {amount: 4}));
 adiCoin.addBlock(new Block(2, "09/02/2022", {amount: 10}));
 
-console.log(JSON.stringify(adiCoin, null, 4));
+console.log('Is Block Chain valid? ' + adiCoin.isChainValid());
+
+//console.log(JSON.stringify(adiCoin, null, 4));
