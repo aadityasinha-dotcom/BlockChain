@@ -7,7 +7,7 @@ class Block{
         this.data = data;
         this.previousHash = previousHash;
         this.hash = this.calculateHash();
-        this.nonce = 0;
+        this.nonce = 0;  // if we do not add it then the hash value of the block will not change
     }
 
     calculateHash(){
