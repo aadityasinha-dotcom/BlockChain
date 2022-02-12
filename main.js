@@ -1,14 +1,17 @@
 const SHA256 = require('crypto-js/sha256');
 
 class Transaction {
-    constructor (formAddress, toAddress){}
+    constructor (formAddress, toAddress, amount){
+        this.formAddress = formAddress;
+        this.toAddress = toAddress;
+        this.amount = amount;
+    }
 }
 
 class Block{
-    constructor(index, timestamp, data, previousHash = ''){
-        this.index = index;
+    constructor(timestamp, transactions, previousHash = ''){
         this.timestamp = timestamp;
-        this.data = data;
+        this.transactions = transactions;
         this.previousHash = previousHash;
         this.hash = this.calculateHash();
         this.nonce = 0;  // if we do not add it then the hash value of the block will not change
@@ -31,21 +34,29 @@ class Block{
 class BlockChain{
     constructor(){
         this.chain = [this.createGenesisBlock()];
-        this.difficulty = 4;
+        this.difficulty = 2;
+        this.pendingTransactions = [];
+        this.miningReward = 100;
     }
 
     createGenesisBlock(){
-        return new Block(0, "01/01/2022", "Genesis Block", "0");
+        return new Block("01/01/2022", "Genesis Block", "0");
     }
 
     getLatestBlock(){
         return this.chain[this.chain.length - 1];
     }
 
-    addBlock(newBlock){
-        newBlock.previousHash = this.getLatestBlock().hash;
-        newBlock.mineBlock(this.difficulty);
-        this.chain.push(newBlock);
+    minePendingTransactions(miningRewardAddress){
+        let block = new Block(Date.now(), this.pendingTransactions);
+        block.mineBlock(this.difficulty);
+
+        console.log("Block succcessfully mined");
+        this.chain.push(block);
+
+        this.pendingTransactions = [
+            new Transaction(null, miningRewardAddress, this.miningReward)
+        ];
     }
 
     isChainValid(){
@@ -67,8 +78,3 @@ class BlockChain{
 }
 
 let adiCoin = new BlockChain();
-console.log("Mining block 1....");
-adiCoin.addBlock(new Block(1, "07/02/2022", {amount: 4}));
-
-console.log("Mining block 2....");
-adiCoin.addBlock(new Block(2, "09/02/2022", {amount: 10}));
